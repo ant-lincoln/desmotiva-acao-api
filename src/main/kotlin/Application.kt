@@ -1,13 +1,22 @@
 package com.seumelhorcaminho
 
 import com.seumelhorcaminho.routes.configureRouting
-import com.seumelhorcaminho.routes.quoteRoutes
 import io.ktor.server.application.*
-import io.ktor.server.routing.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
 import org.jetbrains.exposed.sql.Database
 
 fun main(args: Array<String>) {
-    io.ktor.server.netty.EngineMain.main(args)
+    // Verifica variáveis essenciais antes de iniciar
+    val requiredVars = listOf("JDBC_URL", "DB_USER", "DB_PASSWORD")
+    val missingVars = requiredVars.filter { System.getenv(it) == null }
+
+    if (missingVars.isNotEmpty()) {
+        System.err.println("ERRO: Variáveis de ambiente faltando: ${missingVars.joinToString()}")
+        System.exit(1)
+    }
+
+    EngineMain.main(args)
 }
 
 fun Application.module() {
@@ -15,15 +24,12 @@ fun Application.module() {
     configureMonitoring()
     configureSerialization()
 
-    val config = environment.config
-
     Database.connect(
-        url = config.property("storage.jdbcURL").getString(),
-        driver =  config.property("storage.driverClassName").getString(),
-        user = config.property("storage.user").getString(),
-        password = config.property("storage.password").getString(),
+        url = System.getenv("JDBC_URL") ?: throw IllegalStateException("JDBC_URL não definido"),
+        user = System.getenv("DB_USER") ?: throw IllegalStateException("DB_USER não definido"),
+        password = System.getenv("DB_PASSWORD") ?: throw IllegalStateException("DB_PASSWORD não definido"),
+        driver = "org.postgresql.Driver"
     )
 
     configureRouting()
 }
-
