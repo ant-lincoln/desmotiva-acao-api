@@ -1,0 +1,28 @@
+# === Build ===
+/build/
+.gradle/
+out/
+
+# === IDEs ===
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === Logs ===
+*.log
+
+# === Docker ===
+*.jar
+.env
+.dockerignore
+
+# === Kotlin ===
+*.class
+
+# === Test reports ===
+test-results/
